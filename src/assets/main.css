@@ -1,0 +1,18 @@
+.mrt-label {
+    margin: 10px 0;
+}
+textarea {
+    resize: none;
+}
+.mr-checkbox {
+    display: flex;
+    margin: 10px 0;
+}
+.mr-checkbox input {
+    margin: 2px 4px 0 0;
+    cursor: pointer;
+}
+.mr-checkbox label {
+    cursor: pointer;
+    user-select: none;
+}
