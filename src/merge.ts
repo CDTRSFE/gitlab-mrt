@@ -1,11 +1,18 @@
 import * as vscode from 'vscode';
-// import run from './api';
+import GitExtensionWrap from './git';
+import { MRParams } from './type';
+import Api from './api';
+import { validateForm, log, info } from './utils';
 
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
     public static readonly viewType: string = 'gitlab.merge';
 
     private _view?: vscode.WebviewView;
+
+    private git?: GitExtensionWrap;
+
+    private api?: Api;
 
     constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -26,13 +33,14 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'submitMR':
-					{
-						this.submitMR();
-						break;
-					}
+        webviewView.webview.onDidReceiveMessage(msg => {
+			switch (msg.type) {
+                case 'init': 
+                    this.init();
+                    break;
+                case 'submitMR':
+                    this.submitMR(msg.data);
+                    break;
 			}
 		});
     }
@@ -64,27 +72,24 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         <body>
             <div class="mrt-form">
                 <p class="mrt-label">Title</p>
-                <input class="mrt-title" type="text" name="title" />
+                <input class="mrt-title form" type="text" name="title" />
                 <p class="mrt-label">Description</p>
-                <textarea class="mrt-description" rows="3" name="description"></textarea>
+                <textarea class="mrt-description form" rows="3" name="description"></textarea>
                 <p class="mrt-label">Source branch</p>
-                <select class="mrt-source-branch" name="sourceBranch">
-                    <option>1</option>
+                <select class="mrt-source-branch branches-select form" name="source_branch">
                 </select>
                 <p class="mrt-label">Target branch</p>
-                <select class="mrt-target-branch" name="targetBranch">
-                    <option>2</option>
+                <select class="mrt-target-branch branches-select form" name="target_branch">
                 </select>
                 <p class="mrt-label">Assignee</p>
-                <select class="mrt-Assignee" name="assignee">
-                    <option>3</option>
+                <select class="mrt-assignee form" name="assignee_id">
                 </select>
-                <div class="mr-checkbox">
-                    <input id="deleteSourceBranch" type="checkbox" name="deleteSourceBranch">
+                <div class="mrt-checkbox">
+                    <input id="deleteSourceBranch" class="checkbox" checked type="checkbox" name="remove_source_branch">
                     <label for="deleteSourceBranch">Delete source branch when merge request is accepted.</label>
                 </div>
-                <div class="mr-checkbox">
-                    <input id="squashCommits" type="checkbox" name="squashCommits">
+                <div class="mrt-checkbox">
+                    <input id="squashCommits" type="checkbox" class="checkbox" name="squash">
                     <label for="squashCommits">Squash commits when merge request is accepted.</label>
                 </div>
             </div>
@@ -94,9 +99,51 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         </html>`;
     }
 
-    submitMR() {
+    async submitMR(data: MRParams) {
+        validateForm(data);
+        this.api?.submitMR(data).then(() => {
+            info('create success');
+        }).catch((err) => {
+            // todo log error message
+            try {
+                log(err.response.data.message.join(',') || err.response.data.error);
+            } catch {
+                log(JSON.stringify(err));
+            }
+        });
+    }
+
+    async init() {
+        await new Promise(res => setTimeout(res, 2000));
         const config = vscode.workspace.getConfiguration('gitlabmrt');
-        console.log(config);
+        // console.log(config);
+        this.git = new GitExtensionWrap();
+        this.git.init();
+        // todo listen current branch change
+        const {branches, currentBranchName, projectName } = await this.git.getInfo();
+        this.postMsg('currentBranch', currentBranchName);
+
+        this.api = new Api(config.token);
+        await this.api.getProject(projectName);
+
+        this.getBranches();
+        this.getUsers();
+    }
+
+    getBranches() {
+        this.api?.getBranches().then(res => {
+            this.postMsg('branches', res.data);
+        });
+    }
+
+    getUsers() {
+        this.api?.getUsers().then(res => {
+            this.postMsg('users', res.data);
+        });
+    }
+
+    postMsg(type: string, data: any) {
+        this._view?.webview.postMessage({ type, data });
     }
 }
 
