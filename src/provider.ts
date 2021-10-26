@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import GitExtensionWrap from './git';
 import { MRParams } from './type';
 import Api from './api';
-import { validateForm, log, info } from './utils';
+import { validateForm, log, info, handleResError } from './utils';
 
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
@@ -100,17 +100,25 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     }
 
     async submitMR(data: MRParams) {
-        validateForm(data);
-        this.api?.submitMR(data).then(() => {
-            info('create success');
-        }).catch((err) => {
-            // todo log error message
-            try {
-                log(err.response.data.message.join(',') || err.response.data.error);
-            } catch {
-                log(JSON.stringify(err));
-            }
+        if (!validateForm(data)) {
+            return;
+        };
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            cancellable: false,
+            title: 'Submit MR'
+        }, async (progress) => {
+            progress.report({  increment: 20 });
+            await this.api?.submitMR(data).then(() => {
+                info('create success');
+            }).catch((err) => {
+                const content = err.response.data;
+                handleResError(content);
+            });
+            progress.report({ increment: 100 });
         });
+
+        
     }
 
     async init() {

@@ -1,34 +1,10 @@
-import { execFile, ExecFileOptions } from 'child_process';
-import * as vscode from 'vscode';
+// import * as vscode from 'vscode';
 import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, createMrResponse } from './type';
 import axios, { AxiosInstance } from 'axios';
-
-export function run<TOut extends string | Buffer>(command: string, args: string[]) {
-
-	return new Promise<TOut>((res, rej) => {
-		const folders = vscode.workspace.workspaceFolders;
-		if (!folders || !folders[0]) {
-			return rej();
-		}
-
-		const opts: ExecFileOptions = {
-			cwd: folders[0].uri.path
-		};
-
-		execFile(command, args, opts, (error, stdout) => {
-			console.log(error, stdout);
-			if (error) {
-				return rej(error);
-			}
-			res(stdout as TOut);
-		});
-	});
-}
 
 class Api {
 	private id?: number;
 	axios: AxiosInstance;
-	// host: string = 'https://git.trscd.com.cn';
 
 	constructor(token: string) {
 		this.axios = axios.create({

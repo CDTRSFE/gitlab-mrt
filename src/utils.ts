@@ -15,9 +15,9 @@ export function handleError(e: Error) {
 
 export function validateForm(data: MRParams) {
     const obj = {
-        title: 'title is missing',
-        source_branch: 'Source branch is missing',
-        target_branch: 'Target branch is missing',
+        title: 'Title can\'t be blank',
+        source_branch: 'Source branch can\'t be blank',
+        target_branch: 'Target branch can\'t be blank',
     };
     if (!data.title) {
         return log(obj.title);
@@ -28,4 +28,29 @@ export function validateForm(data: MRParams) {
     if (!data.target_branch) {
         return log(obj.target_branch);
     }
+    return true;
+}
+
+// response message
+export function handleResError(data: any) {
+    if (!data) {
+        return log('Failed to create MR!');
+    }
+    if (data.error) {
+        return log(data.error);
+    }
+    if (Array.isArray(data.message)) {
+        return log(data.message.join('\n'));
+    }
+    if (Object.prototype.toString.call(data.message) === '[object Object]') {
+        let str = '';
+        for(let k in data.message) {
+            const v = data.message[k];
+            if (v.length) {
+                str += `${k} ${v.join(', ')}`;
+            }
+        }
+        return log(str);
+    }
+    return log('Failed to create MR! ' + JSON.stringify(data));
 }
