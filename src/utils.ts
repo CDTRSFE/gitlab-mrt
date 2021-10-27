@@ -9,9 +9,9 @@ export const info = (msg: string) => {
     vscode.window.showInformationMessage(msg, 'Show Info');
 };
 
-export function handleError(e: Error) {
-    log(e.message);
-}
+// export function handleError(e: Error) {
+//     log(e.message);
+// }
 
 export function validateForm(data: MRParams) {
     const obj = {

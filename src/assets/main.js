@@ -7,6 +7,7 @@
 
     postMsg('init');
 
+    // submit MR
     query('#submit').onclick = function() {
         const formItems = queryAll('.form');
         const data = {};
@@ -22,27 +23,52 @@
         });
 
         postMsg('submitMR', data);
+        storageData(data);
     };
 
-    let currentBranchName = '';
+    // search user
+    const searchInpDom = query('#searchInp');
+    searchInpDom.oninput = debounce(function(e) {
+        postMsg('searchUser', e.target.value);
+    }, 500);
+    
+    // user list
+    const userWrapDom = query('.mrt-user-select');
+    document.addEventListener('click', e => {
+        if (!userWrapDom.contains(e.target)) {
+            userWrapDom.classList.remove('show');
+        }
+    });
+    searchInpDom.onfocus = function() {
+        userWrapDom.classList.add('show');
+    };
 
-    // 设置分支下拉框选项及默认值
-    function updateBranches(branches) {
-        const select = queryAll('.branches-select');
-        select.forEach(item => {
-            item.innerHTML = branches.map(({ name }) => {
-                return `<option value="${name}">${name}</option>`;
-            }).join('');
-        });
-        setSourceBranch();
-        setTargetBranch(branches);
-    }
+    // select assignee
+    const userListDom = query('.mrt-user-list');
+    userListDom.onclick = function(e) {
+        const li = e.path.reverse().find(item => item.tagName === 'LI');
+        if (!li) {
+            return;
+        }
+        query('.mrt-assignee-id').value = li.dataset.id;
+        searchInpDom.value = li.dataset.name;
+        userWrapDom.classList.remove('show');
+    };
+
+    const oldState = vscode.getState();
+    // if (oldState?.assignee) {
+    //     updateUsers(oldState?.assignee);
+    // }
+
+    let currentBranchName = '';
+    let branches = [];
 
     window.addEventListener('message', event => {
         const msg = event.data;
         switch (msg.type) {
             case 'branches':
-                updateBranches(msg.data);
+                branches = msg.data;
+                updateBranches(branches);
                 break;
             case 'currentBranch':
                 currentBranchName = msg.data;
@@ -52,17 +78,41 @@
         }
     });
 
+    // debounce
+    function debounce(fn, delay) {
+        let timer;
+        return function() {
+            let _this = this;
+            const opt = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                fn.apply(_this, opt);
+            }, delay);
+        };
+    }
+
+    // 设置分支下拉框选项及默认值
+    function updateBranches() {
+        const select = queryAll('.branches-select');
+        select.forEach(item => {
+            item.innerHTML = branches.map(({ name }) => {
+                return `<option value="${name}">${name}</option>`;
+            }).join('');
+        });
+        setSourceBranch();
+        setTargetBranch();
+    }
     function setSourceBranch() {
         const dom = query('.mrt-source-branch');
         console.log(currentBranchName);
         dom.value = currentBranchName;
-    }
 
-    function setTargetBranch(branches) {
+        setTitle();
+    }
+    function setTargetBranch() {
         let value = '';
-        const data = vscode.getState();
-        if (data && data.targetBranch) {
-            value = data.targetBranch;
+        if (oldState && oldState.targetBranch) {
+            value = oldState.targetBranch;
         } else {
             const item = branches.find(({ name }) => ['master', 'dev'].includes(name));
             value = item?.name;
@@ -75,15 +125,25 @@
     }
 
     function updateUsers(users = []) {
-        const select = query('.mrt-assignee');
-        select.innerHTML = users.map(({ name, id }) => {
-            return `<option value="${id}">${name}</option>`;
+        userListDom.innerHTML = users.map(({ name, username, id }) => {
+            return `<li class="mrt-user-item" data-id="${id}" data-name="${name}">
+                <span class="name">${name}</span>
+                <span class="username">@${username}</span>
+            </li>`;
         }).join('');
+    }
 
-        const data = vscode.getState();
-        let value = data?.assigneeId || users[0]?.id;
+    function setTitle() {
+        const dom = query('.mrt-title');
+        if (dom.value) {
+            return;
+        }
+        dom.value = currentBranchName;
+    }
 
-        const dom = query('.mrt-assignee');
-        dom.value = value || '';
+    function storageData(formData) {
+        vscode.setState({
+            targetBranch: formData.target_branch,
+        });
     }
 })();

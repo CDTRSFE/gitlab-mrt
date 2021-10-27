@@ -33,13 +33,14 @@ class Api {
 		return this.axios.get<GitlabBranch[]>(`/projects/${this.id}/repository/branches`);
 	}
 
-	getUsers() {
+	getUsers(name?: string) {
 		return this.axios.get<GitlabUsers[]>('/users', {
 			params: {
 				active: true,
 				project_id: this.id,
 				current_user: true,
 				per_page: 1000,
+				search: name,
 			}
 		});
 	}

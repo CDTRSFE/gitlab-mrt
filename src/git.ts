@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { API, GitExtension, Repository, GitInfo } from './type';
-import { log, handleError } from './utils';
+import { log } from './utils';
 
 class GitExtensionWrap implements vscode.Disposable {
     apiListeners: vscode.Disposable[] = [];

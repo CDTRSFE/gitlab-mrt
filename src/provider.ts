@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import GitExtensionWrap from './git';
 import { MRParams } from './type';
 import Api from './api';
-import { validateForm, log, info, handleResError } from './utils';
+import { validateForm, info, handleResError } from './utils';
 
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
@@ -40,6 +40,9 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'submitMR':
                     this.submitMR(msg.data);
+                    break;
+                case 'searchUser':
+                    this.getUsers(msg.data);
                     break;
 			}
 		});
@@ -82,8 +85,15 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                 <select class="mrt-target-branch branches-select form" name="target_branch">
                 </select>
                 <p class="mrt-label">Assignee</p>
-                <select class="mrt-assignee form" name="assignee_id">
-                </select>
+
+                <input class="mrt-assignee-id form" name="assignee_id"></input>
+                <div class="mrt-user-select">
+                    <input id="searchInp" list="assigneeOpt" name="assignee_name">
+                    <div class="user-wrap">
+                        <ul class="mrt-user-list"></ul>
+                    </div>
+                </div>
+
                 <div class="mrt-checkbox">
                     <input id="deleteSourceBranch" class="checkbox" checked type="checkbox" name="remove_source_branch">
                     <label for="deleteSourceBranch">Delete source branch when merge request is accepted.</label>
@@ -93,7 +103,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                     <label for="squashCommits">Squash commits when merge request is accepted.</label>
                 </div>
             </div>
-            <button id="submit">Submit MR</button>
+            <button class="mrt-btn" id="submit">Submit MR</button>
             <script nonce="${nonce}" src="${scriptUri}"></script>
         </body>
         </html>`;
@@ -117,8 +127,6 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             });
             progress.report({ increment: 100 });
         });
-
-        
     }
 
     async init() {
@@ -144,8 +152,8 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         });
     }
 
-    getUsers() {
-        this.api?.getUsers().then(res => {
+    getUsers(name?: string) {
+        this.api?.getUsers(name).then(res => {
             this.postMsg('users', res.data);
         });
     }

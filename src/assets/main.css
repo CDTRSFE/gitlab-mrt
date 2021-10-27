@@ -1,8 +1,51 @@
 .mrt-label {
     margin: 10px 0;
+    color: var(--vscode-descriptionForeground);
 }
 textarea {
     resize: none;
+}
+.mrt-assignee-id {
+    display: inline-block;
+    height: 0;
+    border: 0;
+    opacity: 0;
+    padding: 0 !important;
+    position: absolute;
+}
+.mrt-user-select {
+    position: relative;
+}
+.mrt-user-select .user-wrap {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    transition: 0.3s;
+}
+.mrt-user-list {
+    line-height: 2;
+    list-style: none;
+    padding: 6px 0;
+    margin-top: 6px;
+    overflow: auto;
+    height: calc(100% - 6px);
+    background-color: var(--vscode-input-background);
+}
+.mrt-user-select.show .user-wrap {
+    height: 150px;
+}
+.mrt-user-item {
+    padding: 0 6px;
+    margin: 0 4px;
+    cursor: pointer;
+}
+.mrt-user-item:hover {
+    background: var(--vscode-list-hoverBackground);
+}
+.mrt-user-list .username {
+    opacity: 0.5;
 }
 .mrt-checkbox {
     display: flex;
@@ -15,4 +58,8 @@ textarea {
 .mrt-checkbox label {
     cursor: pointer;
     user-select: none;
+    color: var(--vscode-descriptionForeground);
+}
+.mrt-btn {
+    margin-bottom: 30px;
 }
