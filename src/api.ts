@@ -1,19 +1,17 @@
 // import * as vscode from 'vscode';
-import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, createMrResponse } from './type';
+import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, createMrResponse, ExtensionConfig } from './type';
 import axios, { AxiosInstance } from 'axios';
-import { handleResError } from './utils';
 
 class Api {
 	id?: number;
 	axios: AxiosInstance;
 
-	constructor(token: string) {
+	constructor(configuration: ExtensionConfig) {
 		this.axios = axios.create({
 			headers: {
-				'PRIVATE-TOKEN': token
+				'PRIVATE-TOKEN': configuration.token
 			},
-			// todo get baseUrl from extension config (setting.json)
-			baseURL: 'https://git.trscd.com.cn/api/v4'
+			baseURL: configuration.instanceUrl + '/api/v4'
 		});
 		this.axios.interceptors.request.use(function(config) {
 			// console.log({

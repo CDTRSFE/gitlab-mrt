@@ -45,6 +45,11 @@
 					"type": "string",
 					"default": "",
 					"description": "Access token to use to connect to the Gitlab API"
+				},
+				"gitlabmrt.instanceUrl": {
+					"type": "string",
+					"default": "https://gitlab.com",
+					"description": "Your GitLab instance URL"
 				}
 			}
 		},

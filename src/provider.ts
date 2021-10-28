@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import GitExtensionWrap from './git';
-import { MRParams } from './type';
+import { MRParams, ExtensionConfig } from './type';
 import Api from './api';
 import { validateForm, info, log, handleResError } from './utils';
 
@@ -134,7 +134,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
     async init() {
         // todo add progress notice
-        const config = vscode.workspace.getConfiguration('gitlabmrt');
+        const { instanceUrl, token } = vscode.workspace.getConfiguration('gitlabmrt');
         // console.log(config);
         this.git = new GitExtensionWrap();
         this.git.init();
@@ -142,7 +142,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         const {branches, currentBranchName, projectName } = await this.git.getInfo();
         this.postMsg('currentBranch', currentBranchName);
 
-        this.api = new Api(config.token);
+        this.api = new Api({ instanceUrl, token });
         await this.api.getProject(projectName);
 
         if (this.api.id) {

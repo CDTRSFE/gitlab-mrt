@@ -330,6 +330,11 @@ export const enum GitErrorCodes {
   UnknownPath = 'UnknownPath',
 }
 
+export interface ExtensionConfig {
+  instanceUrl: string,
+  token: string
+}
+
 export interface MRParams {
   source_branch: string,
   target_branch: string,
