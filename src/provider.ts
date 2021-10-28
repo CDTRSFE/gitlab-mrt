@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import GitExtensionWrap from './git';
-import { MRParams, ExtensionConfig } from './type';
+import { MRParams } from './type';
 import Api from './api';
 import { validateForm, info, log, handleResError } from './utils';
 
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
-    public static readonly viewType: string = 'gitlab.merge';
+    public static readonly viewType: string = 'gitlab.mrt';
 
     private _view?: vscode.WebviewView;
 
@@ -126,7 +126,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                 });
             }).catch((err) => {
                 const content = err.response.data;
-                handleResError(content);
+                handleResError(content || err.message);
             });
             progress.report({ increment: 100 });
         });

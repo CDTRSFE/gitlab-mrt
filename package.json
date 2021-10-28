@@ -10,7 +10,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:gitlab.merge"
+		"onView:gitlab.mrt"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -18,7 +18,7 @@
 			"gitlab-mrt": [
 				{
 					"type": "webview",
-					"id": "gitlab.merge",
+					"id": "gitlab.mrt",
 					"name": ""
 				}
 			]
@@ -57,7 +57,7 @@
 			"view/title": [
 			  {
 				"command": "gitlabmrt.refresh",
-				"when": "view == gitlab.merge",
+				"when": "view == gitlab.mrt",
 				"group": "navigation"
 			  }
 			]

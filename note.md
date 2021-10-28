@@ -46,3 +46,15 @@ export function run<TOut extends string | Buffer>(command: string, args: string[
 const editor = vscode.window.activeTextEditor;
 const filePath = editor?.document.uri;
 ```
+
+### 隐藏时保留 webview
+
+```js
+// https://code.visualstudio.com/api/references/vscode-api#WebviewViewResolveContext
+
+vscode.window.registerWebviewViewProvider('view', provider, {
+	webviewOptions: {
+		retainContextWhenHidden: true
+	}
+})
+```

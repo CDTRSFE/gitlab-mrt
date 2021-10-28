@@ -37,7 +37,7 @@ export function handleResError(data: any) {
         return log('Failed to create MR!');
     }
     if (data.error) {
-        return log(data.error);
+        return log(Array.isArray(data.error) ? data.error.join(', ') : data.error);
     }
     if (Array.isArray(data.message)) {
         return log(data.message.join('\n'));
