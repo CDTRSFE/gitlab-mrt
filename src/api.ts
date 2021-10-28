@@ -1,9 +1,10 @@
 // import * as vscode from 'vscode';
 import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, createMrResponse } from './type';
 import axios, { AxiosInstance } from 'axios';
+import { handleResError } from './utils';
 
 class Api {
-	private id?: number;
+	id?: number;
 	axios: AxiosInstance;
 
 	constructor(token: string) {
@@ -13,6 +14,29 @@ class Api {
 			},
 			// todo get baseUrl from extension config (setting.json)
 			baseURL: 'https://git.trscd.com.cn/api/v4'
+		});
+		this.axios.interceptors.request.use(function(config) {
+			// console.log({
+			// 	request: {
+			// 		url: config.url,
+			// 		params: config.params
+			// 	}
+			// });
+			return config;
+		});
+		this.axios.interceptors.response.use(function(res) {
+			// console.log({
+			// 	response: {
+			// 		url: res.config.url,
+			// 		params: res.config.params,
+			// 		status: res.status,
+			// 		data: res.data
+			// 	}
+			// });
+			return res;
+		}, function(err) {
+			console.error(err);
+			return Promise.reject(err);
 		});
 	}
 

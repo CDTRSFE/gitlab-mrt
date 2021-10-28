@@ -52,5 +52,5 @@ export function handleResError(data: any) {
         }
         return log(str);
     }
-    return log('Failed to create MR! ' + JSON.stringify(data));
+    return log(JSON.stringify(data));
 }

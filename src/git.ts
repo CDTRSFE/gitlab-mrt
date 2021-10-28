@@ -54,7 +54,7 @@ class GitExtensionWrap implements vscode.Disposable {
             }
 
             const head = this.repo.state.HEAD;
-            const url = this.repo.state.remotes[0].fetchUrl;
+            const url = this.repo.state.remotes[0]?.fetchUrl;
             const match = url?.match(/\/([^\/.]+)(.git)?$/);
 
             const branches = await this.repo?.getBranches({remote: true});
