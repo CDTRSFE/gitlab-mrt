@@ -36,6 +36,7 @@ class GitExtensionWrap implements vscode.Disposable {
             this.gitApi = this.gitExtension?.getAPI(1);
             // todo 多个需要 select
             this.repo = this.gitApi.repositories[0];
+            console.log(this.gitApi.repositories);
             // this.enablementListener = this.gitExtension.onDidChangeEnablement(
             //   this.onDidChangeGitExtensionEnablement,
             //   this,

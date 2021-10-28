@@ -110,7 +110,8 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     }
 
     async submitMR(data: MRParams) {
-        if (!validateForm(data)) {
+        const result = validateForm(data);
+        if (result !== true) {
             return;
         };
         vscode.window.withProgress({
@@ -118,9 +119,11 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             cancellable: false,
             title: 'Submit MR'
         }, async (progress) => {
-            progress.report({  increment: 20 });
-            await this.api?.submitMR(data).then(() => {
-                info('create success');
+            progress.report({});
+            await this.api?.submitMR(data).then((res) => {
+                info('create success', 'Open MR').then(() => {
+                    res.data.web_url && vscode.env.openExternal(vscode.Uri.parse(res.data.web_url));
+                });
             }).catch((err) => {
                 const content = err.response.data;
                 handleResError(content);
@@ -130,6 +133,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     }
 
     async init() {
+        // todo add progress notice
         await new Promise(res => setTimeout(res, 2000));
         const config = vscode.workspace.getConfiguration('gitlabmrt');
         // console.log(config);

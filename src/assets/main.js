@@ -33,14 +33,18 @@
     }, 500);
     
     // user list
+    let timer;
     const userWrapDom = query('.mrt-user-select');
-    document.addEventListener('click', e => {
-        if (!userWrapDom.contains(e.target)) {
-            userWrapDom.classList.remove('show');
-        }
-    });
     searchInpDom.onfocus = function() {
-        userWrapDom.classList.add('show');
+        // 展开选择列表，窗口失焦再聚焦，会先后触发 focus blur 两个事件,
+        // 导致列表先展开再隐藏
+        timer = setTimeout(() => {
+            userWrapDom.classList.add('show');
+        }, 200);
+    };
+    searchInpDom.onblur = function() {
+        clearTimeout(timer);
+        userWrapDom.classList.remove('show');
     };
 
     // select assignee
@@ -61,6 +65,7 @@
     // }
 
     let currentBranchName = '';
+    // remote branches
     let branches = [];
 
     window.addEventListener('message', event => {
@@ -105,7 +110,11 @@
     function setSourceBranch() {
         const dom = query('.mrt-source-branch');
         console.log(currentBranchName);
-        dom.value = currentBranchName;
+        let value = '';
+        if (branches.find(item => item.name === currentBranchName)) {
+            value = currentBranchName;
+        }
+        dom.value = value;
 
         setTitle();
     }

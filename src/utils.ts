@@ -1,12 +1,12 @@
 import { MRParams } from './type';
 import * as vscode from 'vscode';
 
-export const log = (msg: string) => {
-    vscode.window.showErrorMessage(msg, 'Show Logs');
+export const log = (msg: string, ...items: string[]) => {
+    return vscode.window.showErrorMessage(msg, ...items);
 };
 
-export const info = (msg: string) => {
-    vscode.window.showInformationMessage(msg, 'Show Info');
+export const info = (msg: string, ...items: string[]) => {
+    return vscode.window.showInformationMessage(msg, ...items);
 };
 
 // export function handleError(e: Error) {

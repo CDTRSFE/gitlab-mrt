@@ -38,8 +38,7 @@ class Api {
 			params: {
 				active: true,
 				project_id: this.id,
-				current_user: true,
-				per_page: 1000,
+				per_page: 100,
 				search: name,
 			}
 		});

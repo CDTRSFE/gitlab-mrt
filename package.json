@@ -47,7 +47,23 @@
 					"description": "Access token to use to connect to the Gitlab API"
 				}
 			}
-		}
+		},
+		"menus": {
+			"view/title": [
+			  {
+				"command": "gitlabmrt.refresh",
+				"when": "view == gitlab.merge",
+				"group": "navigation"
+			  }
+			]
+		},
+		"commands": [
+			{
+				"command": "gitlabmrt.refresh",
+				"title": "Refresh",
+				"icon": "$(refresh)"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",

@@ -369,4 +369,5 @@ export interface GitlabUsers {
 export interface createMrResponse {
   id?: string,
   error?: string,
+  web_url?: string,
 }
