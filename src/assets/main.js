@@ -140,6 +140,13 @@
                 <span class="username">@${username}</span>
             </li>`;
         }).join('');
+
+        const emptyDom = query('.empty');
+        if (users.length === 0) {
+            emptyDom.classList.add('show');
+        } else {
+            emptyDom.classList.remove('show');
+        }
     }
 
     function setTitle() {

@@ -92,6 +92,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                     <div class="user-wrap">
                         <input id="keywordInp" class="mrt-keyword-inp" placeholder="Search users" >
                         <div class="list">
+                            <p class="empty show">No matching results</p>
                             <ul class="mrt-user-list"></ul>
                         </div>
                     </div>

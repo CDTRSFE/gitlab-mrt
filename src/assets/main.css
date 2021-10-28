@@ -59,15 +59,30 @@ textarea {
     height: 170px;
 }
 .mrt-user-item {
-    padding: 0 6px;
+    display: flex;
+    line-height: 1.4;
+    padding: 4px 6px;
+    flex-wrap: wrap;
     margin: 0 4px;
     cursor: pointer;
 }
 .mrt-user-item:hover {
     background: var(--vscode-list-hoverBackground);
 }
+.mrt-user-list .name {
+    margin-right: 6px;
+}
 .mrt-user-list .username {
     opacity: 0.5;
+}
+.mrt-user-select .empty {
+    display: none;
+    line-height: 2;
+    color: var(--vscode-descriptionForeground);
+    text-align: center;
+}
+.mrt-user-select .empty.show {
+    display: block;
 }
 .mrt-checkbox {
     display: flex;
