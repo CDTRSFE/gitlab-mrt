@@ -16,25 +16,47 @@ textarea {
 .mrt-user-select {
     position: relative;
 }
+.mrt-assignee-name {
+    height: 18px;
+    box-sizing: content-box;
+    line-height: 18px;
+    padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+	color: var(--vscode-input-foreground);
+    background-color: var(--vscode-input-background);
+}
 .mrt-user-select .user-wrap {
+    display: flex;
+    flex-direction: column;
     position: absolute;
     left: 0;
     width: 100%;
     height: 0;
+    margin-top: 6px;
     overflow: hidden;
     transition: 0.3s;
-}
-.mrt-user-list {
-    line-height: 2;
-    list-style: none;
-    padding: 6px 0;
-    margin-top: 6px;
-    overflow: auto;
-    height: calc(100% - 6px);
     background-color: var(--vscode-input-background);
 }
+.mrt-user-select .list {
+    flex: 1;
+    position: relative;
+}
+.mrt-keyword-inp {
+    margin: 6px;
+    width: auto !important;
+}
+.mrt-user-list {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0;
+    line-height: 2;
+    list-style: none;
+    overflow: auto;
+}
 .mrt-user-select.show .user-wrap {
-    height: 150px;
+    height: 170px;
 }
 .mrt-user-item {
     padding: 0 6px;

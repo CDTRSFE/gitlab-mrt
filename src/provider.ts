@@ -88,9 +88,12 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
                 <input class="mrt-assignee-id form" name="assignee_id"></input>
                 <div class="mrt-user-select">
-                    <input id="searchInp" list="assigneeOpt" name="assignee_name">
+                    <div class="mrt-assignee-name"></div>
                     <div class="user-wrap">
-                        <ul class="mrt-user-list"></ul>
+                        <input id="keywordInp" class="mrt-keyword-inp" placeholder="Search users" >
+                        <div class="list">
+                            <ul class="mrt-user-list"></ul>
+                        </div>
                     </div>
                 </div>
 

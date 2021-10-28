@@ -28,26 +28,27 @@
         storageData(data);
     };
 
-    // search user
-    const searchInpDom = query('#searchInp');
+    const assigneeNameDom = query('.mrt-assignee-name');
+    // search input
+    const searchInpDom = query('#keywordInp');
+    // user list
+    const userWrapDom = query('.mrt-user-select');
+    let timer;
+    assigneeNameDom.onclick = function() {
+        userWrapDom.classList.add('show');
+        clearTimeout(timer);
+        setTimeout(() => {
+            searchInpDom.focus();
+        }, 300);
+    };
+    searchInpDom.onblur = function() {
+        timer = setTimeout(() => {
+            userWrapDom.classList.remove('show');
+        }, 100);
+    };
     searchInpDom.oninput = debounce(function(e) {
         postMsg('searchUser', e.target.value);
     }, 500);
-    
-    // user list
-    let timer;
-    const userWrapDom = query('.mrt-user-select');
-    searchInpDom.onfocus = function() {
-        // 展开选择列表，窗口失焦再聚焦，会先后触发 focus blur 两个事件,
-        // 导致列表先展开再隐藏
-        timer = setTimeout(() => {
-            userWrapDom.classList.add('show');
-        }, 200);
-    };
-    searchInpDom.onblur = function() {
-        clearTimeout(timer);
-        userWrapDom.classList.remove('show');
-    };
 
     // select assignee
     const userListDom = query('.mrt-user-list');
@@ -56,15 +57,12 @@
         if (!li) {
             return;
         }
-        query('.mrt-assignee-id').value = li.dataset.id;
-        searchInpDom.value = li.dataset.name;
-        userWrapDom.classList.remove('show');
+        setCurrentAssignee(li.dataset);
     };
 
     const oldState = vscode.getState();
-    // if (oldState?.assignee) {
-    //     updateUsers(oldState?.assignee);
-    // }
+    let selectedAssignee = oldState?.selectedAssignee;
+    setCurrentAssignee(selectedAssignee || {});
 
     let currentBranchName = '';
     // remote branches
@@ -155,6 +153,13 @@
     function storageData(formData) {
         vscode.setState({
             targetBranch: formData.target_branch,
+            selectedAssignee,
         });
+    }
+
+    function setCurrentAssignee({ id, name }) {
+        query('.mrt-assignee-id').value = id || '';
+        assigneeNameDom.innerHTML = name || '';
+        selectedAssignee = { id, name };
     }
 })();
