@@ -1,5 +1,5 @@
 // import * as vscode from 'vscode';
-import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, createMrResponse, ExtensionConfig } from './type';
+import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, CreateMrResponse, ExtensionConfig } from './type';
 import axios, { AxiosInstance } from 'axios';
 import { handleResError } from './utils';
 
@@ -12,7 +12,8 @@ class Api {
 			headers: {
 				'PRIVATE-TOKEN': configuration.token
 			},
-			baseURL: configuration.instanceUrl + '/api/v4'
+			baseURL: configuration.instanceUrl + '/api/v4',
+			timeout: 5000,
 		});
 		this.axios.interceptors.request.use(function(config) {
 			// console.log({
@@ -61,7 +62,7 @@ class Api {
 	}
 
 	submitMR(data: MRParams) {
-		return this.axios.post<createMrResponse>(`/projects/${this.id}/merge_requests`, data);
+		return this.axios.post<CreateMrResponse>(`/projects/${this.id}/merge_requests`, data);
 	}
 }
 

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Uri, Event, Disposable, ProviderResult } from 'vscode';
+import { Uri, Event, Disposable, ProviderResult, Progress } from 'vscode';
 
 export { ProviderResult } from 'vscode';
 
@@ -371,8 +371,16 @@ export interface GitlabUsers {
   state: string,
 }
 
-export interface createMrResponse {
+export interface CreateMrResponse {
   id?: string,
   error?: string,
   web_url?: string,
+}
+
+export interface ProgressPromise {
+  progress: Progress<{
+      message?: string | undefined;
+      increment?: number | undefined;
+  }>;
+  res: () => void;
 }

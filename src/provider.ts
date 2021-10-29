@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import GitExtensionWrap from './git';
 import { MRParams, ExtensionConfig } from './type';
 import Api from './api';
-import { validateForm, info, log } from './utils';
+import { validateForm, info, log, withProgress } from './utils';
 
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
@@ -123,41 +123,54 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         if (result !== true) {
             return;
         };
-        vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            cancellable: false,
-            title: 'Submit MR'
-        }, async (progress) => {
-            progress.report({});
-            await this.api?.submitMR(data).then((res) => {
-                info('create success', 'Open MR').then(() => {
-                    if (res.data.web_url) {
-                        const url = res.data.web_url.replace(/^http(s)?:\/\/[^\/]+/, this.config.instanceUrl);
-                        vscode.env.openExternal(vscode.Uri.parse(url));
-                    }
-                });
+
+        const { res: promiseRes } = await withProgress('Submit MR');
+        const res = await this.api?.submitMR(data).catch(promiseRes);
+        promiseRes();
+        if (res) {
+            info('create success', 'Open MR').then((item) => {
+                if (item === 'Open MR' && res.data.web_url) {
+                    const url = res.data.web_url.replace(/^http(s)?:\/\/[^\/]+/, this.config.instanceUrl);
+                    vscode.env.openExternal(vscode.Uri.parse(url));
+                }
             });
-            progress.report({ increment: 100 });
-        });
+        }
     }
 
     async init() {
-        // todo add progress notice
-        this.git = new GitExtensionWrap();
-        this.git.init();
-        // todo listen current branch change
-        const {branches, currentBranchName, projectName } = await this.git.getInfo();
-        this.postMsg('currentBranch', currentBranchName);
+        const { progress, res: promiseRes } = await withProgress('Git Initialization');
 
-        this.api = new Api(this.config);
-        await this.api.getProject(projectName);
+        try {
+            this.git = new GitExtensionWrap();
+            this.git.init();
+            // todo listen current branch change
+            progress.report({
+                message: 'get information from vscode.git',
+            });
+            const {branches, currentBranchName, projectName } = await this.git.getInfo();
+            this.postMsg('currentBranch', currentBranchName);
 
-        if (this.api.id) {
-            this.getBranches();
-            this.getUsers();
-        } else {
-            log('Project Not Found');
+            this.api = new Api(this.config);
+            progress.report({
+                message: 'get project from gitlab',
+            });
+            await this.api.getProject(projectName);
+
+            if (this.api.id) {
+                progress.report({
+                    message: 'get branches',
+                });
+                await this.getBranches();
+                progress.report({
+                    message: 'get users',
+                });
+                await this.getUsers();
+            } else {
+                log('Project Not Found');
+            }
+        } catch(err) {
         }
+        promiseRes();
     }
 
     getBranches() {

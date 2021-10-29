@@ -26,7 +26,6 @@ class GitExtensionWrap implements vscode.Disposable {
     // }
 
     async init() {
-        // todo add Progress #https://code.visualstudio.com/api/extension-capabilities/common-capabilities#progress-api
         try {
             this.gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')?.exports;
             if (!this.gitExtension) {

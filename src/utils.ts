@@ -1,4 +1,4 @@
-import { MRParams } from './type';
+import { MRParams, ProgressPromise } from './type';
 import * as vscode from 'vscode';
 
 export const log = (msg: string, ...items: string[]) => {
@@ -53,4 +53,21 @@ export function handleResError(data: any) {
         return log(str);
     }
     return log(JSON.stringify(data));
+}
+
+export function withProgress(title: string) {
+    return new Promise<ProgressPromise>(res => {
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            cancellable: false,
+            title
+        }, progress => {
+            return new Promise<void>(r => {
+                res({
+                    progress,
+                    res: r
+                });
+            });
+        });
+    });
 }
