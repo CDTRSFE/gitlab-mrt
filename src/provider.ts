@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import GitExtensionWrap from './git';
-import { MRParams } from './type';
+import { MRParams, ExtensionConfig } from './type';
 import Api from './api';
-import { validateForm, info, log, handleResError } from './utils';
+import { validateForm, info, log } from './utils';
 
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
@@ -14,7 +14,12 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
     private api?: Api;
 
-    constructor(private readonly _extensionUri: vscode.Uri) {}
+    private config: ExtensionConfig;
+
+    constructor(private readonly _extensionUri: vscode.Uri) {
+        const { instanceUrl, token } = vscode.workspace.getConfiguration('gitlabmrt');
+        this.config = { instanceUrl, token };
+    }
 
     public resolveWebviewView(
         webviewView: vscode.WebviewView,
@@ -126,11 +131,11 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             progress.report({});
             await this.api?.submitMR(data).then((res) => {
                 info('create success', 'Open MR').then(() => {
-                    res.data.web_url && vscode.env.openExternal(vscode.Uri.parse(res.data.web_url));
+                    if (res.data.web_url) {
+                        const url = res.data.web_url.replace(/^http(s)?:\/\/[^\/]+/, this.config.instanceUrl);
+                        vscode.env.openExternal(vscode.Uri.parse(url));
+                    }
                 });
-            }).catch((err) => {
-                const content = err.response.data;
-                handleResError(content || err.message);
             });
             progress.report({ increment: 100 });
         });
@@ -138,15 +143,13 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
     async init() {
         // todo add progress notice
-        const { instanceUrl, token } = vscode.workspace.getConfiguration('gitlabmrt');
-        // console.log(config);
         this.git = new GitExtensionWrap();
         this.git.init();
         // todo listen current branch change
         const {branches, currentBranchName, projectName } = await this.git.getInfo();
         this.postMsg('currentBranch', currentBranchName);
 
-        this.api = new Api({ instanceUrl, token });
+        this.api = new Api(this.config);
         await this.api.getProject(projectName);
 
         if (this.api.id) {

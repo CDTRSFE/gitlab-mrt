@@ -1,6 +1,7 @@
 // import * as vscode from 'vscode';
 import { MRParams, GitlabProject, GitlabBranch, GitlabUsers, createMrResponse, ExtensionConfig } from './type';
 import axios, { AxiosInstance } from 'axios';
+import { handleResError } from './utils';
 
 class Api {
 	id?: number;
@@ -23,17 +24,10 @@ class Api {
 			return config;
 		});
 		this.axios.interceptors.response.use(function(res) {
-			// console.log({
-			// 	response: {
-			// 		url: res.config.url,
-			// 		params: res.config.params,
-			// 		status: res.status,
-			// 		data: res.data
-			// 	}
-			// });
 			return res;
 		}, function(err) {
-			console.error(err);
+			const content = err?.response?.data;
+            handleResError(content || err.message);
 			return Promise.reject(err);
 		});
 	}
