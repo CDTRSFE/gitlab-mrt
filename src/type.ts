@@ -331,8 +331,8 @@ export const enum GitErrorCodes {
 }
 
 export interface ExtensionConfig {
-  instanceUrl: string,
-  token: string
+  instanceUrl?: string,
+  token?: string
 }
 
 export interface MRParams {

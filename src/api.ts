@@ -10,7 +10,7 @@ class Api {
 	constructor(configuration: ExtensionConfig) {
 		this.axios = axios.create({
 			headers: {
-				'PRIVATE-TOKEN': configuration.token
+				'PRIVATE-TOKEN': configuration.token || ''
 			},
 			baseURL: configuration.instanceUrl + '/api/v4',
 			timeout: 5000,

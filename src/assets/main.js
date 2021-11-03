@@ -71,6 +71,9 @@
     window.addEventListener('message', event => {
         const msg = event.data;
         switch (msg.type) {
+            case 'viewTips':
+                setTipsVisible(msg.data);
+                break;
             case 'branches':
                 branches = msg.data;
                 updateBranches(branches);
@@ -169,4 +172,16 @@
         assigneeNameDom.innerHTML = name || '';
         selectedAssignee = { id, name };
     }
+
+    function setTipsVisible(visible) {
+        const method = visible ? 'add' : 'remove';
+        const wrapDom = query('.mrt-wrap');
+        wrapDom.classList.remove('hidden');
+        wrapDom.classList[method]('show-tips');
+    }
+
+    // 打开 setting
+    query('.setting-btn').onclick = () => {
+        postMsg('setting');
+    };
 })();

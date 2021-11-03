@@ -1,3 +1,27 @@
+.mrt-wrap.hidden {
+    display: none;
+}
+.mrt-wrap .mrt-form {
+    display: block;
+}
+.mrt-wrap .mrt-tips {
+    display: none;
+}
+.mrt-wrap.show-tips .mrt-form {
+    display: none;
+}
+.mrt-wrap.show-tips .mrt-tips {
+    display: block;
+}
+.mrt-tips p {
+    margin-top: 10px;
+    line-height: 1.4em;
+    color: var(--vscode-editor-foreground);
+}
+.mrt-tips button {
+    margin-top: 10px;
+} 
+
 .mrt-label {
     margin: 10px 0;
     color: var(--vscode-descriptionForeground);

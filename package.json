@@ -19,7 +19,7 @@
 				{
 					"type": "webview",
 					"id": "gitlab.mrt",
-					"name": ""
+					"name": "New Merge Request"
 				}
 			]
 		},
@@ -32,24 +32,18 @@
 				}
 			]
 		},
-		"viewsWelcome": [
-			{
-				"view": "gitlabMrt",
-				"contents": ""
-			}
-		],
 		"configuration": {
 			"title": "GitlabMrt",
 			"properties": {
-				"gitlabmrt.token": {
-					"type": "string",
-					"default": "",
-					"description": "Access token to use to connect to the Gitlab API"
-				},
 				"gitlabmrt.instanceUrl": {
 					"type": "string",
 					"default": "https://gitlab.com",
 					"description": "Your GitLab instance URL"
+				},
+				"gitlabmrt.token": {
+					"type": "string",
+					"default": "",
+					"description": "Access token to use to connect to the Gitlab API"
 				}
 			}
 		},
