@@ -12,7 +12,7 @@ class Api {
 			headers: {
 				'PRIVATE-TOKEN': configuration.token || ''
 			},
-			baseURL: configuration.instanceUrl + '/api/v4',
+			baseURL: configuration.instanceUrl?.replace(/\/$/, '') + '/api/v4',
 			timeout: 5000,
 		});
 		this.axios.interceptors.request.use(function(config) {
