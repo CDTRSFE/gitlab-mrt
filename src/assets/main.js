@@ -5,9 +5,10 @@
     const queryAll = e => document.querySelectorAll(e);
     const postMsg = (type, data) => vscode.postMessage({ type, data });
 
+    // todo
     setTimeout(() => {
         postMsg('init');
-    }, 2000);
+    }, 500);
 
     // submit MR
     query('#submit').onclick = function() {
