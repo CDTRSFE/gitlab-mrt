@@ -3,7 +3,7 @@
 	"displayName": "Gitlab Mrt",
 	"description": "Create MRs in Gitlab from VS Code",
 	"publisher": "zhaoqing",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"icon": "src/assets/icon.png",
 	"repository": "https://github.com/CDTRSFE/gitlab-mrt.git",
 	"engines": {
