@@ -52,11 +52,11 @@
 		},
 		"menus": {
 			"view/title": [
-			  {
-				"command": "gitlabmrt.refresh",
-				"when": "view == gitlab.mrt",
-				"group": "navigation"
-			  }
+				{
+					"command": "gitlabmrt.refresh",
+					"when": "view == gitlab.mrt",
+					"group": "navigation"
+				}
 			]
 		},
 		"commands": [

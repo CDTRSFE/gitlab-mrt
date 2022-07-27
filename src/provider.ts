@@ -168,7 +168,8 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             await this.api.getProject(projectName);
 
             if (this.api.id) {
-                await this.getBranches();
+                // this.postMsg('branches', branches.map(v => v.type === 1) || []);
+                this.getBranches(branches);
                 await this.getUsers();
             } else {
                 log('Project Not Found');
@@ -183,10 +184,14 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         this.config = { instanceUrl, token };
     }
 
-    getBranches() {
-        this.api?.getBranches().then(res => {
-            this.postMsg('branches', res.data || []);
+    getBranches(branches: any[]) {
+        const data = branches.filter(v => v.type === 1 && !v.name.includes('HEAD')).map(v => {
+            v.name = v.name.replace('origin/', '');
+            return v;
         });
+        // this.api?.getBranches().then(res => {
+        this.postMsg('branches', data || []);
+        // });
     }
 
     getUsers(name?: string) {

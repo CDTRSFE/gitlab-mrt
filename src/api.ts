@@ -46,6 +46,7 @@ class Api {
 		});
 	}
 
+	// 通过接口获取分支，有时会到不到全部数据，已改为通过 gitExtension 获取，此方法弃用
 	getBranches() {
 		return this.axios.get<GitlabBranch[]>(`/projects/${this.id}/repository/branches`);
 	}
