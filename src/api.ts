@@ -33,15 +33,15 @@ class Api {
 		});
 	}
 
-	getProject(name: string) {
+	getProject(name: string, url = '') {
 		return this.axios.get<GitlabProject[]>(`/projects`, {
 			params: {
 				search: name,
 			}
 		}).then(res => {
-			if (res.data.length && res.data[0]) {
-				const project = res.data[0];
-				this.id = project.id;
+			if (res.data.length) {
+				const result = res.data.find(item => item['http_url_to_repo'] === url);
+				this.id = (result || res.data[0] || {}).id;
 			}
 		});
 	}

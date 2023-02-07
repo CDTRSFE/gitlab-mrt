@@ -161,11 +161,11 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             this.git.init();
 
             // todo listen current branch change
-            const {branches, currentBranchName, projectName } = await this.git.getInfo();
+            const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
             this.postMsg('currentBranch', currentBranchName);
 
             this.api = new Api(this.config);
-            await this.api.getProject(projectName);
+            await this.api.getProject(projectName, url);
 
             if (this.api.id) {
                 // this.postMsg('branches', branches.map(v => v.type === 1) || []);

@@ -60,7 +60,8 @@ class GitExtensionWrap implements vscode.Disposable {
             res({
                 branches,
                 currentBranchName: head?.name || 'master',
-                projectName: match ? match[1] : ''
+                projectName: match ? match[1] : '',
+                url,
             });
         });
     }

@@ -349,12 +349,14 @@ export interface GitInfo {
   branches: Ref[],
   currentBranchName: string,
   projectName: string,
+  url?: string
 }
 
 export interface GitlabProject {
   id: number,
   description: string,
   name: string,
+  [key: string]: number | string
 }
 
 export interface GitlabBranch {
