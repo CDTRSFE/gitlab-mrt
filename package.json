@@ -53,6 +53,14 @@
 		"menus": {
 			"view/title": [
 				{
+					"command": "gitlabmrt.repository",
+					"when": "view == gitlab.mrt"
+				},
+				{
+					"command": "gitlabmrt.merge.requests",
+					"when": "view == gitlab.mrt"
+				},
+				{
 					"command": "gitlabmrt.refresh",
 					"when": "view == gitlab.mrt",
 					"group": "navigation"
@@ -60,6 +68,14 @@
 			]
 		},
 		"commands": [
+			{
+				"command": "gitlabmrt.repository",
+				"title": "Repository"
+			},
+			{
+				"command": "gitlabmrt.merge.requests",
+				"title": "Merge Requests"
+			},
 			{
 				"command": "gitlabmrt.refresh",
 				"title": "Refresh",

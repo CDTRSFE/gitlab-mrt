@@ -11,6 +11,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     private git?: GitExtensionWrap;
     private api?: Api;
     private config: ExtensionConfig = {};
+    public gitUrl?: string;
     
     constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -162,8 +163,9 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
             // todo listen current branch change
             const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
+            this.gitUrl = url;
             this.postMsg('currentBranch', currentBranchName);
-
+            // https://git.trscd.com.cn/cdtrs/dev/03_super_star/yunnancac/wx2/-/merge_requests
             this.api = new Api(this.config);
             await this.api.getProject(projectName, url);
 

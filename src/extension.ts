@@ -11,7 +11,22 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		})
 	);
-	context.subscriptions.push(vscode.commands.registerCommand('gitlabmrt.refresh', () => {
-		provider.init();
-	}));
+
+	const register = (name: string, cb: () => void) => {
+		return vscode.commands.registerCommand(name, cb);
+	};
+
+	const openGitPage = (isMr = false) => {
+		let url = provider.gitUrl;
+		if (url) {
+			url = url.replace(/.git$/, '');
+			vscode.env.openExternal(vscode.Uri.parse(url + (isMr ? '/-/merge_requests' : '')));
+		}
+	};
+
+	context.subscriptions.push(
+		register('gitlabmrt.refresh', () => provider.init()),
+		register('gitlabmrt.repository', openGitPage),
+		register('gitlabmrt.merge.requests', () => openGitPage(true)),
+	);
 }
