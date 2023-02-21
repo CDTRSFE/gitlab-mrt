@@ -152,7 +152,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async init(repoPath: string) {
+    async init(repoPath?: string) {
         this.getConfig();
 
         const tipsVisible = !this.config.token;
@@ -161,7 +161,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             return;
         }
 
-        this.repoPath = repoPath;
+        this.repoPath = repoPath || this.repoPath || '';
 
         const { progress, res: promiseRes } = await withProgress('Initializing git repository');
         try {
