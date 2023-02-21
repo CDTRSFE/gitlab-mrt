@@ -5,10 +5,48 @@
     const queryAll = e => document.querySelectorAll(e);
     const postMsg = (type, data) => vscode.postMessage({ type, data });
 
+    const oldState = vscode.getState();
+
     // todo
     setTimeout(() => {
-        postMsg('init');
+        postMsg('init', oldState.repoPath);
     }, 500);
+
+    // repo tab
+    query('#repo-list').onclick = function(e) {
+        const target = e.target;
+        const repoPath = target.dataset.path;
+        if (repoPath) {
+            target.parentElement.childNodes.forEach(item => {
+                item.classList?.remove('active');
+            });
+            target.classList.add('active');
+            vscode.setState({ ...oldState, repoPath });
+            postMsg('repoChange', repoPath);
+        }
+    };
+    function updateRepoTab(paths) {
+        state = vscode.getState();
+        let repoPath = state.repoPath;
+        const dom = query('#repo-list');
+        if (dom && paths.length > 1) {
+            if (!repoPath || !paths.includes(repoPath)) {
+                repoPath = paths[0];
+            }
+            vscode.setState({ ...oldState, repoPath });
+            dom.innerHTML = `
+                <div class="mrt-repo">
+                    ${paths.map(item => {
+                        const name = item.split('/').reverse()[0];
+                        return `<div 
+                            class="mrt-repo-name ${repoPath === item ? 'active' : ''}"
+                            data-path="${item}"
+                        >${name}</div>`;
+                    }).join('')}
+                </div>
+            `;
+        }
+    }
 
     // submit MR
     query('#submit').onclick = function() {
@@ -61,7 +99,6 @@
         setCurrentAssignee(li.dataset);
     };
 
-    const oldState = vscode.getState();
     let selectedAssignee = oldState?.selectedAssignee;
     setCurrentAssignee(selectedAssignee || {});
 
@@ -84,6 +121,10 @@
                 break;
             case 'users':
                 updateUsers(msg.data);
+                break;
+            case 'updateRepoTab':
+                updateRepoTab(msg.data);
+                break;
         }
     });
 
@@ -124,7 +165,7 @@
     }
     function setTargetBranch() {
         let value = '';
-        if (oldState && oldState.targetBranch) {
+        if (oldState && oldState.targetBranch && branches.includes(v => v.name === oldState.targetBranch)) {
             value = oldState.targetBranch;
         } else {
             const item = branches.find(({ name }) => ['master', 'dev'].includes(name));

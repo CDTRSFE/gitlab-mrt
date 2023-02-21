@@ -13,6 +13,8 @@ class GitExtensionWrap implements vscode.Disposable {
     private gitApi?: API;
     private gitExtension?: GitExtension;
     private repo?: Repository;
+    public repos: Repository[] = [];
+    public repoPath?: string;
 
     // private async onDidChangeGitExtensionEnablement(enabled: boolean) {
     //     if (enabled) {
@@ -25,7 +27,7 @@ class GitExtensionWrap implements vscode.Disposable {
     //     }
     // }
 
-    async init() {
+    async init(repoPath: string, cb: (paths: string[]) => void) {
         try {
             this.gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')?.exports;
             if (!this.gitExtension) {
@@ -33,8 +35,17 @@ class GitExtensionWrap implements vscode.Disposable {
               return;
             }
             this.gitApi = this.gitExtension?.getAPI(1);
-            // todo 多个需要 select
-            this.repo = this.gitApi.repositories[0];
+
+            // 有子模块
+            this.repos = this.gitApi.repositories;
+            const paths = this.repos
+                .sort((a, b) => a.rootUri.path.length - b.rootUri.path.length)
+                .map(item => {
+                    return item.rootUri.path;
+                });
+            cb(paths);
+
+            this.repoPath = repoPath;
             console.log(this.gitApi.repositories);
             // this.enablementListener = this.gitExtension.onDidChangeEnablement(
             //   this.onDidChangeGitExtensionEnablement,
@@ -48,6 +59,13 @@ class GitExtensionWrap implements vscode.Disposable {
 
     getInfo() {
         return new Promise<GitInfo>(async (res, rej) => {
+            this.repo = this.repos?.find(r => {
+                return r.rootUri.path === this.repoPath;
+            });
+            if (!this.repo && this.repos.length) {
+                this.repo = this.repos[0];
+                this.repoPath = this.repo.rootUri.path;
+            }
             if (!this.repo) {
                 return rej();
             }

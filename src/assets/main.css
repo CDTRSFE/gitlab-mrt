@@ -1,3 +1,10 @@
+body {
+    --mrt-border-color: rgba(100, 100, 100, .22);
+}
+.vscode-dark {
+    --mrt-border-color: rgba(128, 128, 128, .40);
+}
+
 .mrt-wrap.hidden {
     display: none;
 }
@@ -123,4 +130,23 @@ textarea {
 }
 .mrt-btn {
     margin-bottom: 30px;
+}
+
+.mrt-repo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--mrt-border-color);
+}
+.mrt-repo-name {
+    padding: 7px 4px;
+    margin: 0 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vscode-tab-inactiveForeground);
+    cursor: pointer;
+}
+.mrt-repo-name.active {
+    border-bottom: 2.5px solid var(--vscode-button-background);
+    color: var(--vscode-tab-activeForeground);
 }

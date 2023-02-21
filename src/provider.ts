@@ -12,6 +12,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     private api?: Api;
     private config: ExtensionConfig = {};
     public gitUrl?: string;
+    public repoPath?: string;
     
     constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -35,7 +36,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         webviewView.webview.onDidReceiveMessage(msg => {
 			switch (msg.type) {
                 case 'init': 
-                    this.init();
+                    this.init(msg.data);
                     break;
                 case 'submitMR':
                     this.submitMR(msg.data);
@@ -48,6 +49,9 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                         'workbench.action.openSettings',
                         `gitlabmrt`,
                     );
+                    break;
+                case 'repoChange':
+                    this.setupRepo(msg.data);
 			}
 		});
     }
@@ -78,6 +82,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         </head>
         <body>
             <div class="mrt-wrap hidden">
+                <div id="repo-list"></div>
                 <div class="mrt-form">
                     <p class="mrt-label">Title</p>
                     <input class="mrt-title form" type="text" name="title" />
@@ -147,7 +152,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async init() {
+    async init(repoPath: string) {
         this.getConfig();
 
         const tipsVisible = !this.config.token;
@@ -156,29 +161,57 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             return;
         }
 
+        this.repoPath = repoPath;
+
         const { progress, res: promiseRes } = await withProgress('Initializing git repository');
         try {
             this.git = new GitExtensionWrap();
-            this.git.init();
+            this.git.init(this.repoPath, (paths) => {
+                this.postMsg('updateRepoTab', paths);
+            });
+            this.setupRepo();
 
-            // todo listen current branch change
-            const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
-            this.gitUrl = url;
-            this.postMsg('currentBranch', currentBranchName);
-            // https://git.trscd.com.cn/cdtrs/dev/03_super_star/yunnancac/wx2/-/merge_requests
-            this.api = new Api(this.config);
-            await this.api.getProject(projectName, url);
+            // const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
+            // this.gitUrl = url;
+            // this.postMsg('currentBranch', currentBranchName);
+            // // https://git.trscd.com.cn/cdtrs/dev/03_super_star/yunnancac/wx2/-/merge_requests
+            // this.api = new Api(this.config);
+            // await this.api.getProject(projectName, url);
 
-            if (this.api.id) {
-                // this.postMsg('branches', branches.map(v => v.type === 1) || []);
-                this.getBranches(branches);
-                await this.getUsers();
-            } else {
-                log('Project Not Found');
-            }
+            // if (this.api.id) {
+            //     // this.postMsg('branches', branches.map(v => v.type === 1) || []);
+            //     this.getBranches(branches);
+            //     await this.getUsers();
+            // } else {
+            //     log('Project Not Found');
+            // }
         } catch(err) {
         }
         promiseRes();
+    }
+
+    async setupRepo(path?: string) {
+        if (!this.git) {
+            return;
+        }
+
+        if (path) {
+            this.git.repoPath = path;
+        }
+
+        const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
+        this.gitUrl = url;
+        this.postMsg('currentBranch', currentBranchName);
+        this.api = new Api(this.config);
+        await this.api.getProject(projectName, url);
+
+        if (this.api.id) {
+            // this.postMsg('branches', branches.map(v => v.type === 1) || []);
+            this.getBranches(branches);
+            await this.getUsers();
+        } else {
+            log('Failed to fetch repository info!');
+        }
     }
 
     getConfig() {
