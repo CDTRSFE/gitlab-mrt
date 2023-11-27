@@ -92,8 +92,8 @@
     // select assignee
     const userListDom = query('.mrt-user-list');
     userListDom.onclick = function(e) {
-        const li = e.path.reverse().find(item => item.tagName === 'LI');
-        if (!li) {
+        const li = e.target.tagName === 'LI' ? e.target : e.target.parentNode;
+        if (!li || li.tagName !== 'LI') {
             return;
         }
         setCurrentAssignee(li.dataset);
