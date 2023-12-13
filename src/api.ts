@@ -40,8 +40,12 @@ class Api {
 			}
 		}).then(res => {
 			if (res.data.length) {
-				const result = res.data.find(item => item['http_url_to_repo'] === url);
-				this.id = (result || res.data[0] || {}).id;
+				const result = res.data.find(item => {
+					return url.endsWith(item['path_with_namespace'] as string) ||
+					item['http_url_to_repo'] === (url + '.git') ||
+					item['ssh_url_to_repo'] === (url + '.git');
+				});
+				this.id = result?.id;
 			}
 		});
 	}
