@@ -4,6 +4,7 @@ import { MRParams, ExtensionConfig } from './type';
 import Api from './api';
 import { validateForm, info, log, withProgress } from './utils';
 
+let n = 0;
 export default class MergeProvider implements vscode.WebviewViewProvider {
 
     public static readonly viewType: string = 'gitlab.mrt';
@@ -164,29 +165,22 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         this.repoPath = repoPath || this.repoPath || '';
 
         const { progress, res: promiseRes } = await withProgress('Initializing git repository');
-        try {
-            this.git = new GitExtensionWrap();
-            await this.git.init(this.repoPath, (paths) => {
-                this.postMsg('updateRepoTab', paths);
-            });
-            await this.setupRepo();
-
-            // const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
-            // this.gitUrl = url;
-            // this.postMsg('currentBranch', currentBranchName);
-            // // https://git.trscd.com.cn/cdtrs/dev/03_super_star/yunnancac/wx2/-/merge_requests
-            // this.api = new Api(this.config);
-            // await this.api.getProject(projectName, url);
-
-            // if (this.api.id) {
-            //     // this.postMsg('branches', branches.map(v => v.type === 1) || []);
-            //     this.getBranches(branches);
-            //     await this.getUsers();
-            // } else {
-            //     log('Project Not Found');
-            // }
-        } catch(err) {
-        }
+        const fn = async() => {
+            try {
+                this.git = new GitExtensionWrap();
+                await this.git.init(this.repoPath || '', (paths) => {
+                    this.postMsg('updateRepoTab', paths);
+                });
+                await this.setupRepo();
+            } catch(err) {
+            }
+            if (n < 10 && !this.api?.id) {
+                n++;
+                await new Promise(res => setTimeout(res, 1000));
+                await fn();
+            }
+        };
+        await fn();
         promiseRes();
     }
 
