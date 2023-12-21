@@ -166,10 +166,10 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         const { progress, res: promiseRes } = await withProgress('Initializing git repository');
         try {
             this.git = new GitExtensionWrap();
-            this.git.init(this.repoPath, (paths) => {
+            await this.git.init(this.repoPath, (paths) => {
                 this.postMsg('updateRepoTab', paths);
             });
-            this.setupRepo();
+            await this.setupRepo();
 
             // const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
             // this.gitUrl = url;
