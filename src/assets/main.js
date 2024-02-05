@@ -264,6 +264,9 @@
         } else {
             emptyDom.classList.remove('show');
         }
+        const active = query(`.${type} .mrt-user-item.active`);
+        // 默认选中第一个
+        query(`.${type} .mrt-user-item`).classList.add('active');
     }
 
     function setTitle() {
