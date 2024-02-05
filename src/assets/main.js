@@ -55,6 +55,9 @@
         formItems.forEach(item => {
             const name = item.getAttribute('name');
             data[name] = item.value;
+            if(name === 'reviewer_id'){
+                data.reviewer_ids = [Number(item.value)];
+            }
         });
 
         const checkbox = queryAll('.checkbox');
@@ -68,70 +71,100 @@
     };
 
     const assigneeNameDom = query('.mrt-assignee-name');
+    const reviewerNameDom = query('.mrt-reviewer-name');
     // search input
-    const searchInpDom = query('#keywordInp');
-    // user list
-    const userWrapDom = query('.mrt-user-select');
+    const searchInpDomAssignee = query('#keywordInp-assignee');
+    const searchInpDomReviewer = query('#keywordInp-reviewer');
+    // user assignee list
+    const userWrapAssigneeDom = query('.mrt-user-select.assignee');
+    // user reviewer list
+    const userWrapReviewerDom = query('.mrt-user-select.reviewer');
     let timer;
-    assigneeNameDom.onclick = function() {
-        userWrapDom.classList.add('show');
-        clearTimeout(timer);
-        setTimeout(() => {
-            searchInpDom.focus();
-            // 监听上下按键
-            document.onkeydown = function(e) {
-                const active = query('.mrt-user-item.active');
-                if(!active) {
-                    // 默认选中第一个
-                    query('.mrt-user-item').classList.add('active');
-                    return;
-                }
-                if (e.key === 'ArrowDown') {
-                    const next = active.nextElementSibling;
-                    if (next) {
-                        active.classList.remove('active');
-                        next.classList.add('active');
-                        // 滚动到可视区域上部
-                        active.scrollIntoView(true);
+
+    // 点击输入框显示用户列表
+    function userWrapDomClick (type) {
+        return function(){
+            type === 'assignee' ? userWrapAssigneeDom.classList.add('show') : userWrapReviewerDom.classList.add('show');
+            clearTimeout(timer);
+            setTimeout(() => {
+                type === 'assignee' ? searchInpDomAssignee.focus() : searchInpDomReviewer.focus();
+
+                // 监听上下按键
+                document.onkeydown = function(e) {
+                    const active = query(`.${type} .mrt-user-item.active`);
+                    if(!active) {
+                        // 默认选中第一个
+                        query(`.${type} .mrt-user-item`).classList.add('active');
+                        return;
                     }
-                } else if (e.key === 'ArrowUp') {
-                    const prev = active.previousElementSibling;
-                    if (prev) {
-                        active.classList.remove('active');
-                        prev.classList.add('active');
-                        // 滚动到可视区域下部
-                        active.scrollIntoView(false);
+                    if (e.key === 'ArrowDown') {
+                        const next = active.nextElementSibling;
+                        if (next) {
+                            active.classList.remove('active');
+                            next.classList.add('active');
+                            // 滚动到可视区域上部
+                            active.scrollIntoView(true);
+                        }
+                    } else if (e.key === 'ArrowUp') {
+                        const prev = active.previousElementSibling;
+                        if (prev) {
+                            active.classList.remove('active');
+                            prev.classList.add('active');
+                            // 滚动到可视区域下部
+                            active.scrollIntoView(false);
+                        }
+                    } else if (e.key === 'Enter') {
+                        active.click();
+                        type === 'assignee' ? searchInpDomAssignee.blur() : searchInpDomReviewer.blur();
                     }
-                } else if (e.key === 'Enter') {
-                    active.click();
-                    searchInpDom.blur();
-                }
-            };
-        }, 300);
-    };
-    searchInpDom.onblur = function() {
-        timer = setTimeout(() => {
-            userWrapDom.classList.remove('show');
-            // 取消监听上下按键
-            document.onkeydown = null;
-        }, 100);
-    };
-    searchInpDom.oninput = debounce(function(e) {
+                };
+            }, 300);
+        };
+    }
+    assigneeNameDom.onclick =  userWrapDomClick('assignee');
+    reviewerNameDom.onclick = userWrapDomClick('reviewer');
+
+    // 失焦隐藏用户列表
+    function userWrapDomBlur (type) {
+        return function(){
+            timer = setTimeout(() => {
+                type === 'assignee' ? userWrapAssigneeDom.classList.remove('show') : userWrapReviewerDom.classList.remove('show');
+                // 取消监听上下按键
+                document.onkeydown = null;
+            }, 100);
+        };
+    }
+    searchInpDomAssignee.onblur = userWrapDomBlur('assignee');
+    searchInpDomReviewer.onblur = userWrapDomBlur('reviewer');
+
+    searchInpDomAssignee.oninput = debounce(function(e) {
         postMsg('searchUser', e.target.value);
+    }, 500);
+    searchInpDomReviewer.oninput = debounce(function(e) {
+        postMsg('searchReviewer', e.target.value);
     }, 500);
 
     // select assignee
-    const userListDom = query('.mrt-user-list');
-    userListDom.onclick = function(e) {
+    const userListAssigneeDom = query('.assignee .mrt-user-list');
+    const userListReviewerDom = query('.reviewer .mrt-user-list');
+
+    // 点击用户列表选中用户
+    function userListDomCLick(e) {
         const li = e.target.tagName === 'LI' ? e.target : e.target.parentNode;
         if (!li || li.tagName !== 'LI') {
             return;
-        }
-        setCurrentAssignee(li.dataset);
-    };
+        };
+        const type = li.classList.contains('assignee-item') ? 'assignee' : 'reviewer';
+        type === 'assignee' ? setCurrentAssignee(li.dataset) : setCurrentReviewer(li.dataset);
+    }
+    userListAssigneeDom.onclick = userListDomCLick;
+    userListReviewerDom.onclick = userListDomCLick;
 
     let selectedAssignee = oldState?.selectedAssignee;
     setCurrentAssignee(selectedAssignee || {});
+    // 设置缓存用户数据
+    let selectedReviewer = oldState?.selectedReviewer;
+    setCurrentReviewer(selectedReviewer || {});
 
     let currentBranchName = '';
     // remote branches
@@ -151,7 +184,10 @@
                 currentBranchName = msg.data;
                 break;
             case 'users':
-                updateUsers(msg.data);
+                updateUsers(msg.data, 'assignee');
+                break;
+            case 'reviewers':
+                updateUsers(msg.data, 'reviewer');
                 break;
             case 'updateRepoTab':
                 updateRepoTab(msg.data);
@@ -209,15 +245,20 @@
         dom.value = value;
     }
 
-    function updateUsers(users = []) {
-        userListDom.innerHTML = users.map(({ name, username, id }) => {
-            return `<li class="mrt-user-item" data-id="${id}" data-name="${name}">
+    function updateUsers(users = [],type = 'assignee') {
+        const list = users.map(({ name, username, id }) => {
+            return `<li class="mrt-user-item ${type}-item" data-id="${id}" data-name="${name}">
                 <span class="name">${name}</span>
                 <span class="username">@${username}</span>
             </li>`;
         }).join('');
 
-        const emptyDom = query('.empty');
+        if(type === 'assignee') {
+            userListAssigneeDom.innerHTML = list;
+        } else {
+            userListReviewerDom.innerHTML = list;
+        }
+        const emptyDom = query(`.${type} .empty`);
         if (users.length === 0) {
             emptyDom.classList.add('show');
         } else {
@@ -237,6 +278,7 @@
         vscode.setState({
             targetBranch: formData.target_branch,
             selectedAssignee,
+            selectedReviewer,
         });
     }
 
@@ -244,6 +286,12 @@
         query('.mrt-assignee-id').value = id || '';
         assigneeNameDom.innerHTML = name || '';
         selectedAssignee = { id, name };
+    }
+
+    function setCurrentReviewer({ id, name }) {
+        query('.mrt-reviewer-id').value = id || '';
+        reviewerNameDom.innerHTML = name || '';
+        selectedReviewer = { id, name };
     }
 
     function setTipsVisible(visible) {
