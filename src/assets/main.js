@@ -78,11 +78,42 @@
         clearTimeout(timer);
         setTimeout(() => {
             searchInpDom.focus();
+            // 监听上下按键
+            document.onkeydown = function(e) {
+                const active = query('.mrt-user-item.active');
+                if(!active) {
+                    // 默认选中第一个
+                    query('.mrt-user-item').classList.add('active');
+                    return;
+                }
+                if (e.key === 'ArrowDown') {
+                    const next = active.nextElementSibling;
+                    if (next) {
+                        active.classList.remove('active');
+                        next.classList.add('active');
+                        // 滚动到可视区域上部
+                        active.scrollIntoView(true);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    const prev = active.previousElementSibling;
+                    if (prev) {
+                        active.classList.remove('active');
+                        prev.classList.add('active');
+                        // 滚动到可视区域下部
+                        active.scrollIntoView(false);
+                    }
+                } else if (e.key === 'Enter') {
+                    active.click();
+                    searchInpDom.blur();
+                }
+            };
         }, 300);
     };
     searchInpDom.onblur = function() {
         timer = setTimeout(() => {
             userWrapDom.classList.remove('show');
+            // 取消监听上下按键
+            document.onkeydown = null;
         }, 100);
     };
     searchInpDom.oninput = debounce(function(e) {
