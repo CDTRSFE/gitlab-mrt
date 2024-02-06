@@ -156,8 +156,6 @@
         };
         const type = li.classList.contains('assignee-item') ? 'assignee' : 'reviewer';
         type === 'assignee' ? setCurrentAssignee(li.dataset) : setCurrentReviewer(li.dataset);
-        // 显示 X
-        query(`.del-${type}`).classList.remove('hidden');
     }
     userListAssigneeDom.onclick = userListDomCLick;
     userListReviewerDom.onclick = userListDomCLick;
@@ -166,9 +164,6 @@
     function delUsers(type){
         return () => {
             type === 'assignee' ? setCurrentAssignee({}) : setCurrentReviewer({});
-            // 隐藏 X
-            query(`.del-${type}`).classList.add('hidden');
-
         };
     }
     query('.del-assignee').onclick = delUsers('assignee');
@@ -302,12 +297,22 @@
         query('.mrt-assignee-id').value = id || '';
         assigneeNameDom.innerHTML = name || '';
         selectedAssignee = { id, name };
+        if(name){
+            query(`.del-assignee`).classList.remove('hidden');
+        }else{
+            query(`.del-assignee`).classList.add('hidden');
+        }
     }
 
     function setCurrentReviewer({ id, name }) {
         query('.mrt-reviewer-id').value = id || '';
         reviewerNameDom.innerHTML = name || '';
         selectedReviewer = { id, name };
+        if(name){
+            query(`.del-reviewer`).classList.remove('hidden');
+        }else{
+            query(`.del-reviewer`).classList.add('hidden');
+        }
     }
 
     function setTipsVisible(visible) {
