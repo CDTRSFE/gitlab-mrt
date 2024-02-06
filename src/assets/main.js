@@ -88,33 +88,31 @@
             clearTimeout(timer);
             setTimeout(() => {
                 type === 'assignee' ? searchInpDomAssignee.focus() : searchInpDomReviewer.focus();
-
+                query(`.${type} .mrt-user-item.hover`)?.classList?.remove('hover');
                 // 监听上下按键
                 document.onkeydown = function(e) {
                     const active = query(`.${type} .mrt-user-item.active`);
-                    if(!active) {
-                        // 默认选中第一个
-                        query(`.${type} .mrt-user-item`).classList.add('active');
-                        return;
-                    }
+                    const firstItem = query(`.${type} .mrt-user-item`);
+                    const hoverItem = query(`.${type} .mrt-user-item.hover`) || active;
                     if (e.key === 'ArrowDown') {
-                        const next = active.nextElementSibling;
+                        const next = !hoverItem ? firstItem : hoverItem.nextElementSibling;
                         if (next) {
-                            active.classList.remove('active');
-                            next.classList.add('active');
-                            // 滚动到可视区域上部
-                            active.scrollIntoView(true);
+                            hoverItem?.classList.remove('hover');
+                            next.classList.add('hover');
+                            next.scrollIntoView(true);
                         }
                     } else if (e.key === 'ArrowUp') {
-                        const prev = active.previousElementSibling;
+                        const prev = !hoverItem ? firstItem : hoverItem.previousElementSibling;
                         if (prev) {
-                            active.classList.remove('active');
-                            prev.classList.add('active');
-                            // 滚动到可视区域下部
-                            active.scrollIntoView(false);
+                            hoverItem?.classList.remove('hover');
+                            prev.classList.add('hover');
+                            prev.scrollIntoView(true);
                         }
                     } else if (e.key === 'Enter') {
-                        active.click();
+                        if (!hoverItem) {
+                            return;
+                        }
+                        hoverItem.click();
                         type === 'assignee' ? searchInpDomAssignee.blur() : searchInpDomReviewer.blur();
                     }
                 };
@@ -148,14 +146,29 @@
     const userListAssigneeDom = query('.assignee .mrt-user-list');
     const userListReviewerDom = query('.reviewer .mrt-user-list');
 
+    let selectedAssignee = oldState?.selectedAssignee;
+    setCurrentAssignee(selectedAssignee || {});
+    // 设置缓存用户数据
+    let selectedReviewer = oldState?.selectedReviewer;
+    setCurrentReviewer(selectedReviewer || {});
+
     // 点击用户列表选中用户
     function userListDomCLick(e) {
         const li = e.target.tagName === 'LI' ? e.target : e.target.parentNode;
         if (!li || li.tagName !== 'LI') {
             return;
         };
+        Array.prototype.slice.call(li?.parentNode?.children || [])
+            .filter(el => el.tagName === 'LI' && el !== li)
+            .forEach(item => item.classList.remove('active'));
+        li?.classList.toggle('active');
         const type = li.classList.contains('assignee-item') ? 'assignee' : 'reviewer';
-        type === 'assignee' ? setCurrentAssignee(li.dataset) : setCurrentReviewer(li.dataset);
+        const data = li.dataset;
+        if (type === 'assignee') {
+            setCurrentAssignee(selectedAssignee?.id === data?.id ? {} : data);
+        } else {
+            setCurrentReviewer(selectedReviewer?.id === data?.id ? {} : data);
+        }
     }
     userListAssigneeDom.onclick = userListDomCLick;
     userListReviewerDom.onclick = userListDomCLick;
@@ -168,12 +181,6 @@
     }
     query('.del-assignee').onclick = delUsers('assignee');
     query('.del-reviewer').onclick = delUsers('reviewer');
-
-    let selectedAssignee = oldState?.selectedAssignee;
-    setCurrentAssignee(selectedAssignee || {});
-    // 设置缓存用户数据
-    let selectedReviewer = oldState?.selectedReviewer;
-    setCurrentReviewer(selectedReviewer || {});
 
     let currentBranchName = '';
     // remote branches
@@ -230,7 +237,6 @@
     }
     function setSourceBranch() {
         const dom = query('.mrt-source-branch');
-        console.log(currentBranchName);
         let value = '';
         if (branches.find(item => item.name === currentBranchName)) {
             value = currentBranchName;
@@ -254,9 +260,10 @@
         dom.value = value;
     }
 
-    function updateUsers(users = [],type = 'assignee') {
+    function updateUsers(users = [], type = 'assignee') {
+        const currentId = type === 'assignee' ? selectedAssignee?.id : selectedReviewer?.id;
         const list = users.map(({ name, username, id }) => {
-            return `<li class="mrt-user-item ${type}-item" data-id="${id}" data-name="${name}">
+            return `<li class="mrt-user-item ${type}-item ${currentId==id ? 'active' : ''}" data-id="${id}" data-name="${name}">
                 <span class="name">${name}</span>
                 <span class="username">@${username}</span>
             </li>`;
@@ -274,7 +281,7 @@
             emptyDom.classList.remove('show');
         }
         // 默认选中第一个
-        query(`.${type} .mrt-user-item`)?.classList?.add('active');
+        // query(`.${type} .mrt-user-item[data-id='${}']`)?.classList?.add('active');
     }
 
     function setTitle() {

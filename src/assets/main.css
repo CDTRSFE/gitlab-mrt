@@ -1,10 +1,14 @@
 body {
     --mrt-border-color: rgba(100, 100, 100, .22);
+    overflow-x: hidden;
 }
 .vscode-dark {
     --mrt-border-color: rgba(128, 128, 128, .40);
 }
 
+.mrt-wrap {
+    padding: 0 var(--container-padding);
+}
 .mrt-wrap.hidden {
     display: none;
 }
@@ -28,7 +32,6 @@ body {
 .mrt-tips button {
     margin-top: 10px;
 } 
-
 .mrt-label {
     margin: 10px 0;
     color: var(--vscode-descriptionForeground);
@@ -56,14 +59,22 @@ textarea {
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
+    border: 1px solid var(--vscode-input-border, transparent);
+    border-radius: var(--gm-border-radius);
 }
-.del-icon{
+.del-icon {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: var(--input-padding-vertical);
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
-    width: 20px;
-    height: 20px;
+    width: 12px;
+    height: 12px;
+    color: var(--vscode-input-foreground);
+    transition: transform 0.3s;
+}
+.del-icon:hover {
+    transform: translateY(-50%) scale(1.2);
 }
 .del-icon.hidden{
     display: none;
@@ -77,9 +88,11 @@ textarea {
     height: 0;
     margin-top: 6px;
     overflow: hidden;
-    transition: 0.3s;
-    background-color: var(--vscode-input-background);
-    z-index: 2;
+    transition: height 0.3s;
+    background-color: var(--vscode-sideBar-background);
+    border: 1px solid var(--vscode-input-border, transparent);
+    border-radius: var(--gm-border-radius);
+    opacity: 0;
 }
 .mrt-user-select .list {
     flex: 1;
@@ -101,22 +114,25 @@ textarea {
     overflow: auto;
 }
 .mrt-user-select.show .user-wrap {
-    height: 170px;
+    opacity: 1;
+    height: 200px;
+    z-index: 2;
 }
 .mrt-user-item {
     display: flex;
     line-height: 1.4;
     padding: 4px 6px;
     flex-wrap: wrap;
-    margin: 0 4px;
+    margin: 0 6px;
     cursor: pointer;
+    border-radius: var(--gm-border-radius);
+}
+.mrt-user-item:hover, .mrt-user-item.hover {
+    background: var(--vscode-list-activeSelectionBackground);
 }
 .mrt-user-item.active{
-    background: rgb(25, 103, 210);
-    border: 1px solid rgb(0, 120, 212);
-}
-.mrt-user-item:hover {
-    background: var(--vscode-list-hoverBackground);
+    color: var(--vscode-button-foreground);
+    background-color: var(--vscode-button-background);
 }
 .mrt-user-list .name {
     margin-right: 6px;
