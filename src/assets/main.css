@@ -36,7 +36,8 @@ body {
 textarea {
     resize: none;
 }
-.mrt-assignee-id {
+.mrt-assignee-id,
+.mrt-reviewer-id {
     display: inline-block;
     height: 0;
     border: 0;
@@ -47,13 +48,25 @@ textarea {
 .mrt-user-select {
     position: relative;
 }
-.mrt-assignee-name {
+.mrt-assignee-name,
+.mrt-reviewer-name  {
     height: 18px;
     box-sizing: content-box;
     line-height: 18px;
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
+}
+.del-icon{
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+.del-icon.hidden{
+    display: none;
 }
 .mrt-user-select .user-wrap {
     display: flex;
@@ -66,6 +79,7 @@ textarea {
     overflow: hidden;
     transition: 0.3s;
     background-color: var(--vscode-input-background);
+    z-index: 2;
 }
 .mrt-user-select .list {
     flex: 1;

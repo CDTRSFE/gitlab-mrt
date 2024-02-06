@@ -340,6 +340,7 @@ export interface MRParams {
   target_branch: string,
   title: string,
   assignee_id?: number,
+  reviewer_ids?: number[],
   description?: string,
   remove_source_branch?: boolean,
   allow_collaboration?: boolean,

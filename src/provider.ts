@@ -45,6 +45,9 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                 case 'searchUser':
                     this.getUsers(msg.data);
                     break;
+                case 'searchReviewer':
+                    this.getReviewers(msg.data);
+                    break;
                 case 'setting':
                     vscode.commands.executeCommand(
                         'workbench.action.openSettings',
@@ -98,10 +101,26 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                     <p class="mrt-label">Assignee</p>
 
                     <input class="mrt-assignee-id form" name="assignee_id"></input>
-                    <div class="mrt-user-select">
+                    <div class="mrt-user-select assignee">
                         <div class="mrt-assignee-name"></div>
+                        <svg class="del-icon del-assignee" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-v-ea893728=""><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
                         <div class="user-wrap">
-                            <input id="keywordInp" class="mrt-keyword-inp" placeholder="Search users" >
+                            <input id="keywordInp-assignee" class="mrt-keyword-inp" placeholder="Search users" >
+                            <div class="list">
+                                <p class="empty show">No matching results</p>
+                                <ul class="mrt-user-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mrt-label">Reviewer</p>
+
+                    <input class="mrt-reviewer-id form" name="reviewer_id"></input>
+                    <div class="mrt-user-select reviewer">
+                        <div class="mrt-reviewer-name"></div>
+                        <svg class="del-icon del-reviewer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-v-ea893728=""><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
+                        <div class="user-wrap">
+                            <input id="keywordInp-reviewer" class="mrt-keyword-inp" placeholder="Search users" >
                             <div class="list">
                                 <p class="empty show">No matching results</p>
                                 <ul class="mrt-user-list"></ul>
@@ -203,6 +222,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             // this.postMsg('branches', branches.map(v => v.type === 1) || []);
             this.getBranches(branches);
             await this.getUsers();
+            await this.getReviewers();
         } else {
             log('Failed to fetch repository info!');
         }
@@ -226,6 +246,13 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     getUsers(name?: string) {
         this.api?.getUsers(name).then(res => {
             this.postMsg('users', res.data);
+        });
+    }
+
+    // 搜索Reviewer
+    getReviewers(name?: string) {
+        this.api?.getUsers(name).then(res => {
+            this.postMsg('reviewers', res.data);
         });
     }
 
