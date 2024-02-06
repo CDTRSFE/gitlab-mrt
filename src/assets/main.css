@@ -57,6 +57,17 @@ textarea {
 	color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
 }
+.del-icon{
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+.del-icon.hidden{
+    display: none;
+}
 .mrt-user-select .user-wrap {
     display: flex;
     flex-direction: column;

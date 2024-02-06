@@ -55,7 +55,7 @@
         formItems.forEach(item => {
             const name = item.getAttribute('name');
             data[name] = item.value;
-            if(name === 'reviewer_id'){
+            if(name === 'reviewer_id' && item.value){
                 data.reviewer_ids = [Number(item.value)];
             }
         });
@@ -156,9 +156,23 @@
         };
         const type = li.classList.contains('assignee-item') ? 'assignee' : 'reviewer';
         type === 'assignee' ? setCurrentAssignee(li.dataset) : setCurrentReviewer(li.dataset);
+        // 显示 X
+        query(`.del-${type}`).classList.remove('hidden');
     }
     userListAssigneeDom.onclick = userListDomCLick;
     userListReviewerDom.onclick = userListDomCLick;
+
+    // 删除选中用户
+    function delUsers(type){
+        return () => {
+            type === 'assignee' ? setCurrentAssignee({}) : setCurrentReviewer({});
+            // 隐藏 X
+            query(`.del-${type}`).classList.add('hidden');
+
+        };
+    }
+    query('.del-assignee').onclick = delUsers('assignee');
+    query('.del-reviewer').onclick = delUsers('reviewer');
 
     let selectedAssignee = oldState?.selectedAssignee;
     setCurrentAssignee(selectedAssignee || {});
@@ -264,9 +278,8 @@
         } else {
             emptyDom.classList.remove('show');
         }
-        const active = query(`.${type} .mrt-user-item.active`);
         // 默认选中第一个
-        query(`.${type} .mrt-user-item`).classList.add('active');
+        query(`.${type} .mrt-user-item`)?.classList?.add('active');
     }
 
     function setTitle() {
