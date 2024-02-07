@@ -177,6 +177,7 @@
     function delUsers(type){
         return () => {
             type === 'assignee' ? setCurrentAssignee({}) : setCurrentReviewer({});
+            query(`.${type} .mrt-user-item.active`)?.classList?.remove('active');
         };
     }
     query('.del-assignee').onclick = delUsers('assignee');
